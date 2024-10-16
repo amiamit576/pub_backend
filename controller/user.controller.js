@@ -6,7 +6,7 @@ const cookieOptions = {
   secure: process.env.NODE_ENV === 'production',
   maxAge: 7 * 24 * 60 * 60 * 1000, 
   httpOnly: true,
-  sameSite: 'None',
+  sameSite: 'Lax',
 };
 
 export const signUp = async (req, res, next) => {
@@ -50,8 +50,9 @@ export const login = async (req, res, next) => {
   }
 
   const token = await user.generateJWTToken();
+
   res.cookie('token', token, cookieOptions);
-  // console.log(cookies)
+
 
   res.status(200).json({
     success: true,
@@ -61,9 +62,20 @@ export const login = async (req, res, next) => {
 };
 
 export const logout = (req, res) => {
-  res.clearCookie('token', { httpOnly: true, secure: process.env.NODE_ENV === 'production' });
-  res.status(200).json({ success: true, message: 'User logged out successfully' });
+  console.log('logout method ')
+  res.clearCookie('token', {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production', // Set secure based on the environment
+    sameSite: 'Lax', // Ensure sameSite is consistent
+    path: '/', // Explicitly set the path to match how it was set in login
+  });
+  console.log('logout method complete ')
+  res.status(200).json({
+    success: true,
+    message: 'User logged out successfully',
+  });
 };
+
 
 export const getLoggedInUserDetails = async (req, res, next) => {
   const user = await User.findById(req.user.id);

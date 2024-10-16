@@ -32,9 +32,13 @@ app.use('/ping', (req, res) => {
 /*import  all routes*/
 import userRoutes from './routes/user.routes.js';
 import productRoutes from './routes/products.routes.js'
-
+import  cartRoutes from  './routes/cart.routes.js'
+import  reservationRoutes   from './routes/reservation.routes.js'
+// routes
 app.use('/api/v1/user', userRoutes);
 app.use('/api/v1/products',productRoutes);
+app.use('/api/v1/cart', cartRoutes);  
+app.use('/api/v1/reservation',reservationRoutes);
 
 app.all('*', (req, res) => {
     res.status(404).send('OOPS!! 404 Page not found');
