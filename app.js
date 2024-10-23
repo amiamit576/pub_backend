@@ -34,11 +34,17 @@ import userRoutes from './routes/user.routes.js';
 import productRoutes from './routes/products.routes.js'
 import  cartRoutes from  './routes/cart.routes.js'
 import  reservationRoutes   from './routes/reservation.routes.js'
+import   adminRoutes  from './routes/admin.routes.js'
+import feedbackRoutes from './routes/feedback.routes.js';
+
 // routes
 app.use('/api/v1/user', userRoutes);
 app.use('/api/v1/products',productRoutes);
 app.use('/api/v1/cart', cartRoutes);  
 app.use('/api/v1/reservation',reservationRoutes);
+app.use('/api/v1/admin',adminRoutes);
+app.use('/api/v1/feedback', feedbackRoutes);
+
 
 app.all('*', (req, res) => {
     res.status(404).send('OOPS!! 404 Page not found');

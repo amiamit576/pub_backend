@@ -65,9 +65,9 @@ export const logout = (req, res) => {
   console.log('logout method ')
   res.clearCookie('token', {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production', // Set secure based on the environment
-    sameSite: 'Lax', // Ensure sameSite is consistent
-    path: '/', // Explicitly set the path to match how it was set in login
+    secure: process.env.NODE_ENV === 'production', 
+    sameSite: 'Lax', 
+    path: '/', 
   });
   console.log('logout method complete ')
   res.status(200).json({
@@ -78,10 +78,12 @@ export const logout = (req, res) => {
 
 
 export const getLoggedInUserDetails = async (req, res, next) => {
+
   const user = await User.findById(req.user.id);
   res.status(200).json({
     success: true,
     message: 'User details',
     user,
   });
+ 
 };

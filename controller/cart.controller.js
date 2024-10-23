@@ -2,22 +2,41 @@ import Cart from '../models/cart.model.js';
 import Product from '../models/product.model.js';
 import AppError from '../utlis/appError.js';
 
-// Add an item to the cart
-export const addItemToCart = async (req, res, next) => {
-  const { productId, quantity } = req.body;
+// Fetch cart for authenticated user
+export const getCart = async (req, res, next) => {
+  const userId = req.user.id || req.user._id;
 
   try {
+    const cart = await Cart.findOne({ user: userId }).populate('items.product', 'name price image');
+  
+    if (!cart) {
+      return res.status(200).json({ success: true, data: { cart: [] } });
+    }
+    res.status(200).json({ success: true, data: { cart } });
+  } catch (error) {
+    next(new AppError('Failed to fetch cart', 500));
+  }
+};
+
+// Add item to cart
+export const addItemToCart = async (req, res, next) => {
+
+  const userId = req.user.id || req.user._id;
+  const { productId, quantity } = req.body;
+  try {
     const product = await Product.findById(productId);
+    console.log("product",product)
     if (!product) {
       return next(new AppError('Product not found', 404));
     }
-
-    // Use a session-based cart or generic cart (for unauthenticated users)
-    let cart = req.session.cart || { items: [] }; 
+    let cart = await Cart.findOne({ user: userId });
+    console.log(cart)
+    if (!cart) {
+      cart = new Cart({ user: userId, items: [] });
+    }
 
     const existingItemIndex = cart.items.findIndex(item => item.product.toString() === productId);
-
-    if (existingItemIndex >= 0) {
+     if (existingItemIndex >= 0) {
       // Update the quantity and total price if the item exists
       cart.items[existingItemIndex].quantity += quantity;
       cart.items[existingItemIndex].totalPrice = cart.items[existingItemIndex].quantity * product.price;
@@ -30,20 +49,20 @@ export const addItemToCart = async (req, res, next) => {
       });
     }
 
-    // Save the cart to the session (for temporary storage, non-persistent)
-    req.session.cart = cart;
+    await cart.save();
+ 
 
     res.status(200).json({
-      status: 'success',
+      success: true,
       message: 'Item added to cart',
       data: { cart }
     });
   } catch (error) {
-    next(error);
+    next(new AppError('Failed to add item to cart', 500));
   }
 };
 
-// Remove an item from the cart
+// Remove item from cart
 export const removeItemFromCart = async (req, res, next) => {
   const userId = req.user.id || req.user._id;
   const { productId } = req.params;
@@ -65,12 +84,12 @@ export const removeItemFromCart = async (req, res, next) => {
     await cart.save();
 
     res.status(200).json({
-      status: 'success',
+      success: true,
       message: 'Item removed from cart',
       data: { cart }
     });
   } catch (error) {
-    next(error);
+    next(new AppError('Failed to remove item from cart', 500));
   }
 };
 
@@ -90,16 +109,16 @@ export const clearCart = async (req, res, next) => {
     await cart.save();
 
     res.status(200).json({
-      status: 'success',
+      success: true,
       message: 'Cart cleared',
       data: { cart }
     });
   } catch (error) {
-    next(error);
+    next(new AppError('Failed to clear cart', 500));
   }
 };
 
-// Update the quantity of an item in the cart
+// Update item quantity in cart
 export const updateItemQuantity = async (req, res, next) => {
   const userId = req.user.id || req.user._id;
   const { productId } = req.params;
@@ -132,31 +151,11 @@ export const updateItemQuantity = async (req, res, next) => {
     await cart.save();
 
     res.status(200).json({
-      status: 'success',
+      success: true,
       message: 'Quantity updated',
       data: { cart }
     });
   } catch (error) {
-    next(error);
-  }
-};
-
-// Get the current cart for the user
-export const getCart = async (req, res, next) => {
-  const userId = req.user.id || req.user._id;
-
-  try {
-    let cart = await Cart.findOne({ user: userId }).populate('items.product', 'name price image');
-
-    if (!cart) {
-      return next(new AppError('Cart not found', 404));
-    }
-
-    res.status(200).json({
-      status: 'success',
-      data: { cart }
-    });
-  } catch (error) {
-    next(error);
+    next(new AppError('Failed to update item quantity', 500));
   }
 };
