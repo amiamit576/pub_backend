@@ -118,3 +118,45 @@ export const deleteReservation = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+// allreservervation for  Admin
+export const getAllReservationsAdmin = async (req, res) => {
+  try {
+    // Fetch all reservations from the database
+    const allReservations = await Reservation.find().populate('user', 'name email');
+
+    res.status(200).json(allReservations);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Admin-specific update reservation
+export const updateReservationAdmin = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updatedReservation = await Reservation.findByIdAndUpdate(
+      id,
+      req.body,
+      { new: true, runValidators: true }
+    );
+    if (!updatedReservation) {
+      return res.status(404).json({ message: 'Reservation not found' });
+    }
+    res.status(200).json(updatedReservation);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+// Admin-specific delete reservation
+export const deleteReservationAdmin = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const deletedReservation = await Reservation.findByIdAndDelete(id);
+    if (!deletedReservation) {
+      return res.status(404).json({ message: 'Reservation not found' });
+    }
+    res.status(200).json({ message: 'Reservation deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};

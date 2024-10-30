@@ -11,7 +11,7 @@ export const createFeedback = async (req, res) => {
   }
 };
 
-// Get all feedback (optional if needed)
+
 export const getAllFeedback = async (req, res) => {
   try {
     const feedbacks = await Feedback.find();

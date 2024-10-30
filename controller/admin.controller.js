@@ -58,6 +58,7 @@ const AdminController = {
 
   createProduct: async (req, res, next) => {
     const { name, price, category, rating = 0, isFavorite = false } = req.body;
+    console.log(req.body)
 
     if (!req.file) {
       return res.status(400).json({
@@ -65,6 +66,7 @@ const AdminController = {
         message: 'Image file is required',
       });
     }
+    //const imageUrl = `${req.protocol}://${req.get('host')}/assets/images/${req.file.filename}`;
 
     const imageUrl = `/assets/images/${req.file.filename}`;
     console.log(imageUrl)
